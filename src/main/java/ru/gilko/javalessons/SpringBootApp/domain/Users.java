@@ -1,13 +1,11 @@
 package ru.gilko.javalessons.SpringBootApp.domain;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table
@@ -16,7 +14,7 @@ import javax.persistence.Table;
 @EqualsAndHashCode(of = {"id"})
 public class Users {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String name;
     private String email;
