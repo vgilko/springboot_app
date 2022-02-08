@@ -3,6 +3,8 @@ create database denfinder;
 create user denfinder_admin with login password 'zxQWe.!/';
 grant all privileges on database "denfinder" to denfinder_admin;
 
+create type gender_t as enum ('MALE', 'FEMALE');
+
 create table address (
     id serial primary key,
     country varchar (100) not null,
@@ -26,7 +28,7 @@ create table users (
     id serial primary key,
     name varchar (100) not null,
     email varchar (50) not null ,
-    gender boolean not null,
+    gender gender_t not null,
     age smallint not null,
 --    university integer foreign key,
     description varchar (500)
