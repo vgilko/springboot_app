@@ -1,5 +1,6 @@
 package ru.gilko.javalessons.SpringBootApp.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.gilko.javalessons.SpringBootApp.domain.Users;
 import ru.gilko.javalessons.SpringBootApp.repository.UserRepository;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private final UserRepository userRepository;
 
@@ -24,11 +27,16 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Users user) {
-        System.out.println(user);
+        log.info("Request for creating user: " + user);
         Users savedUser = userRepository.save(user);
 
         if (Objects.equals(savedUser, user)) {
+            // нужно ли выводить то, что пытались сохранить?
+            // по типу "для запроса на создание пользователя user был создан пользователь savedUser"
+            log.info("User has been created: " + savedUser);
             return ResponseEntity.status(HttpStatus.OK).build();
+        } else {
+            log.error("User has not been created: " + user);
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -36,26 +44,38 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<Users>> list() {
-        return ResponseEntity.ok(userRepository.findAll());
+        List<Users> allUsers = userRepository.findAll();
+
+        log.info("Request for getting all users. Amount of extracted users: " + allUsers.size());
+        return ResponseEntity.ok(allUsers);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getOne(@PathVariable("id") Optional<Users> user) {
-        if (user.isEmpty()) {
+    public ResponseEntity<?> getOne(@PathVariable("id") long id) {
+        try {
+            Users user = userRepository.getById(id);
+            log.debug("Found user with id = " + id + ". " + user);
+            return ResponseEntity.ok(user);
+        }
+        catch (EntityNotFoundException e) {
+            log.error("Unable to found user with id = " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
-        return ResponseEntity.ok(user.get());
     }
 
     @PutMapping("{id}")
     public ResponseEntity<?> update(@PathVariable("id") long id,
                                     @RequestBody Users user) {
+        log.info("Request for updating user with id = " + id);
+        log.info("New user data: " + user); // надо ли выводить такую инфу. и если надо, то по идее все поля объекта выводим
+
         Users userFromDataBase = userRepository.getById(id);
+        log.info("User before update: " + userFromDataBase);
 
         BeanUtils.copyProperties(user, userFromDataBase, "id");
 
-        userRepository.save(userFromDataBase);
+        Users userAfterUpdate = userRepository.save(userFromDataBase);
+        log.info("User after update: " + userAfterUpdate);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -65,9 +85,12 @@ public class UserController {
     public ResponseEntity<?> delete(@PathVariable String id) {
         try {
             userRepository.deleteById(Long.parseLong(id));
+
+            log.info("Deleted user with id = " + id);
             return ResponseEntity.status(HttpStatus.OK).build();
         }
         catch  (EmptyResultDataAccessException e) {
+            log.error("Unable to delete user with id = " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
