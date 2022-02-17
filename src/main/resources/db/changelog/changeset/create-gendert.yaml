@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Viktor
+      changes:
+        - sql:
+            sql: create type gender_t as enum ('MALE', 'FEMALE');

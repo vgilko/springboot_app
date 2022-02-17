@@ -1,0 +1,8 @@
+databaseChangeLog: # хотелось бы так...
+  - changeSet:
+      id: 1
+      author: Viktor Gilko
+
+      changes:
+        sql:
+          - sql: create database 'denfinder'

@@ -1,4 +1,4 @@
-package ru.gilko.javalessons.SpringBootApp.domain;
+package ru.gilko.javalessons.SpringBootApp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -9,12 +9,9 @@ import ru.gilko.javalessons.SpringBootApp.enums.Gender;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
-@Entity
-@Table
 @Data
 @ToString(of = {"id", "name", "email"})
-@EqualsAndHashCode(of = {"id"})
-public class Users {
+public class UserInputDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
@@ -34,7 +31,8 @@ public class Users {
 
     @PositiveOrZero(message = "Age is not valid")
     private int age;
-//    private long university;
+    //    private long university;
     @NotBlank
     private String description;
 }
+

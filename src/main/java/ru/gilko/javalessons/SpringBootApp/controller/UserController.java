@@ -1,11 +1,13 @@
 package ru.gilko.javalessons.SpringBootApp.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.gilko.javalessons.SpringBootApp.domain.Users;
+import ru.gilko.javalessons.SpringBootApp.dto.UserInputDto;
 import ru.gilko.javalessons.SpringBootApp.repository.UserRepository;
 
 import javax.validation.Valid;
@@ -15,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private final UserRepository userRepository;
 
@@ -23,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Users user) {
+    public ResponseEntity<?> create(@RequestBody @Valid Users user) { // сделать UserInputDto
         System.out.println(user);
         Users savedUser = userRepository.save(user);
 
