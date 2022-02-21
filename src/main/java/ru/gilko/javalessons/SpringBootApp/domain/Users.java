@@ -16,9 +16,9 @@ import javax.validation.constraints.*;
 @EqualsAndHashCode(of = {"id"})
 public class Users {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
-    private long id;
+    private Long id;
 
     @NotEmpty
     private String name;
@@ -34,7 +34,7 @@ public class Users {
 
     @PositiveOrZero(message = "Age is not valid")
     private int age;
-//    private long university;
+//    private Long university;
     @NotBlank
     private String description;
 }

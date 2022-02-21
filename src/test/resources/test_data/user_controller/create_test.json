@@ -1,0 +1,7 @@
+{
+  "name": "string",
+  "email": "string@value.ru",
+  "gender": "MALE",
+  "age": 12,
+  "description": "string"
+}

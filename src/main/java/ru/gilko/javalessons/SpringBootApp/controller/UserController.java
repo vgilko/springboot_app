@@ -2,14 +2,12 @@ package ru.gilko.javalessons.SpringBootApp.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.gilko.javalessons.SpringBootApp.domain.Users;
 import ru.gilko.javalessons.SpringBootApp.repository.UserRepository;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
@@ -26,15 +24,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Users user) {
+    public ResponseEntity<?> post(@Valid @RequestBody Users user) {
         log.info("Request for creating user: " + user);
         Users savedUser = userRepository.save(user);
 
         if (Objects.equals(savedUser, user)) {
-            // нужно ли выводить то, что пытались сохранить?
-            // по типу "для запроса на создание пользователя user был создан пользователь savedUser"
-            log.info("User has been created: " + savedUser);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
             log.error("User has not been created: " + user);
         }
@@ -44,55 +39,59 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<Users>> list() {
-        List<Users> allUsers = userRepository.findAll();
+        log.info("Request for getting all users.");
 
-        log.info("Request for getting all users. Amount of extracted users: " + allUsers.size());
+        List<Users> allUsers = userRepository.findAll();
+        log.info("Amount of extracted users: " + allUsers.size());
+
         return ResponseEntity.ok(allUsers);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getOne(@PathVariable("id") long id) {
-        try {
-            Users user = userRepository.getById(id);
+    public ResponseEntity<?> getOne(@PathVariable("id") Long id) {
+        log.info("Request for getting user with id = " + id);
+
+        Optional<Users> user = userRepository.findById(id);
+
+        if (user.isPresent()) {
             log.debug("Found user with id = " + id + ". " + user);
             return ResponseEntity.ok(user);
-        }
-        catch (EntityNotFoundException e) {
+        } else {
             log.error("Unable to found user with id = " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<?> update(@PathVariable("id") long id,
+    public ResponseEntity<?> update(@PathVariable("id") Long id,
                                     @RequestBody Users user) {
         log.info("Request for updating user with id = " + id);
-        log.info("New user data: " + user); // надо ли выводить такую инфу. и если надо, то по идее все поля объекта выводим
+        log.info("New user data: " + user);
 
-        Users userFromDataBase = userRepository.getById(id);
+        Users userFromDataBase = userRepository.getById(id);  // переделать
         log.info("User before update: " + userFromDataBase);
 
         BeanUtils.copyProperties(user, userFromDataBase, "id");
 
         Users userAfterUpdate = userRepository.save(userFromDataBase);
-        log.info("User after update: " + userAfterUpdate);
+//        log.info("User after update: " + userAfterUpdate);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable String id) {
-        try {
-            userRepository.deleteById(Long.parseLong(id));
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+//        try {
+            userRepository.deleteById(id);
 
             log.info("Deleted user with id = " + id);
             return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        catch  (EmptyResultDataAccessException e) {
-            log.error("Unable to delete user with id = " + id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+//        }
+//        catch  (EmptyResultDataAccessException e) {
+//            log.error("Unable to delete user with id = " + id);
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        }
     }
 
 
